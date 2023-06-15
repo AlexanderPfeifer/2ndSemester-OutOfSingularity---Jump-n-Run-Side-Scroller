@@ -3414,6 +3414,7 @@ Transform:
   - {fileID: 432277064}
   - {fileID: 132718111}
   - {fileID: 1152654086}
+  - {fileID: 830402868}
   - {fileID: 731157754}
   - {fileID: 508548011}
   m_Father: {fileID: 0}
@@ -4568,7 +4569,7 @@ GameObject:
   - component: {fileID: 830402866}
   - component: {fileID: 830402865}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: UICanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4650,8 +4651,8 @@ RectTransform:
   m_Children:
   - {fileID: 234387377}
   - {fileID: 1101737304}
-  m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_Father: {fileID: 563227716}
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
