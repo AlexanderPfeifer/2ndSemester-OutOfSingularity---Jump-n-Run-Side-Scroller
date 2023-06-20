@@ -84,7 +84,8 @@ public class EnemyScript : MonoBehaviour
         {
             OnHitWithReference?.Invoke(sender);
         }
-        else
+
+        if(currentHealthEnemy <= 0)
         {
             anim.SetTrigger("Death");
         }
