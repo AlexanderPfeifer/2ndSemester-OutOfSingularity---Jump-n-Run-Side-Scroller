@@ -6,22 +6,27 @@ using UnityEngine.InputSystem;
 
 public class EnemyScript : MonoBehaviour
 {
+    #region Health Variables
     [Header("Health")]
     [SerializeField] int maxHealthEnemy;
     public int currentHealthEnemy;
     public UnityEvent<GameObject> OnHitWithReference;
+    #endregion
 
+    #region Attack Variables
     [Header("Attack")]
     [SerializeField] float attackRange;
-    [SerializeField] float attackDelay;
-    [SerializeField] float passedTimeBetweenAttacks;
+    [SerializeField] float attackRate = 2;
+    [SerializeField] float nextAttackTime = 0;
+    [SerializeField] float playerInRangeDistance;
     [SerializeField] float speed;
     [SerializeField] int attackDamage;
     [SerializeField] private Transform player;
     public Transform attackPoint;
     public LayerMask attackMask;
-    private Animator anim;
+    #endregion
 
+    #region Detection Variables
     [Header("Movement")]
     [SerializeField] private Transform detectorOrigin;
     [SerializeField] float detectionDelay;
@@ -29,12 +34,17 @@ public class EnemyScript : MonoBehaviour
     public Vector2 detectorOriginOffset = Vector2.zero;
     public LayerMask detectorLayerMask;
     public bool isFlipped = false;
-    public bool showGizmos = true;
-    private Rigidbody2D rb;
     private GameObject target;
-
     [field: SerializeField] public bool PlayerDetected { get; private set; }
+    #endregion
 
+    #region ScriptAndScript Variables
+    PlayerScript playerScript;
+    Rigidbody2D rb;
+    Animator anim;
+    #endregion
+
+    #region Target Methods
     public Vector2 DirectionToTarget => target.transform.position - detectorOrigin.position;
 
     public GameObject Target
@@ -46,7 +56,9 @@ public class EnemyScript : MonoBehaviour
             PlayerDetected = target != null;
         }
     }
+    #endregion
 
+    #region Unity Methods
     private void Start()
     {
         currentHealthEnemy = maxHealthEnemy;
@@ -61,20 +73,12 @@ public class EnemyScript : MonoBehaviour
         LookAtPlayer();
         PerformDetection();
 
-        if(Vector2.Distance(player.position, rb.position) <= attackRange)
+        if(Vector2.Distance(player.position, rb.position) <= playerInRangeDistance)
         {
-            if(passedTimeBetweenAttacks >= attackDelay)
-            {
-                passedTimeBetweenAttacks = 0;
-                Attack();
-            }
-        }
-
-        if(passedTimeBetweenAttacks < attackDelay)
-        {
-            passedTimeBetweenAttacks += Time.deltaTime;
+            anim.SetTrigger("EnemyAttack");
         }
     }
+    #endregion
 
     public void TakeDamageEnemy(int damage, GameObject sender)
     {
@@ -94,17 +98,29 @@ public class EnemyScript : MonoBehaviour
     public void Attack()
     {
         Collider2D colInfo = Physics2D.OverlapCircle(attackPoint.position, attackRange, attackMask);
-        if (colInfo != null)
         {
-            PlayerScript playerScript;
-            if(playerScript = colInfo.GetComponent<PlayerScript>())
+            if (colInfo != null)
             {
-                FindObjectOfType<HitStopScript>().FreezeTime(0.1f);
-                playerScript.TakeDamagePlayer(attackDamage);
+                if (playerScript = colInfo.GetComponent<PlayerScript>())
+                {
+                    if (Time.time >= nextAttackTime)
+                    {
+                        StartCoroutine(MovementLock());
+                        playerScript.TakeDamagePlayer(attackDamage);
+                        nextAttackTime = Time.time + 1f / attackRate;
+                        FindObjectOfType<HitStopScript>().FreezeTime(0.2f);
+                    }
+                }
             }
         }
     }
 
+    public void Die()
+    {
+        Destroy(gameObject);
+    }
+
+    #region Player Detection Methods
     public void LookAtPlayer()
     {
         Vector3 flipped = transform.localScale;
@@ -138,6 +154,13 @@ public class EnemyScript : MonoBehaviour
         }
     }
 
+    IEnumerator DetectionCoroutine()
+    {
+        yield return new WaitForSeconds(detectionDelay);
+        PerformDetection();
+        StartCoroutine(DetectionCoroutine());
+    }
+
     private void StopMoving()
     {
         rb.constraints = RigidbodyConstraints2D.FreezePositionX;
@@ -150,24 +173,20 @@ public class EnemyScript : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
 
-    private void Die()
+    IEnumerator MovementLock()
     {
-        Destroy(gameObject);
+        StopMoving();
+        yield return new WaitForSeconds(2f);
+        Move();
     }
-
-    IEnumerator DetectionCoroutine()
-    {
-        yield return new WaitForSeconds(detectionDelay);
-        PerformDetection();
-        StartCoroutine(DetectionCoroutine());
-    }
+    #endregion
 
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
 
-        if (showGizmos && detectorOrigin != null)
+        if (detectorOrigin != null)
         {
             Gizmos.color = Color.green;
             if (PlayerDetected)

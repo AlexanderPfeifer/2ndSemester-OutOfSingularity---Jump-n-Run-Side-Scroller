@@ -47,6 +47,7 @@ public class PlayerScript : MonoBehaviour
     private Animator anim;
     private SpriteRenderer sr;
     private Vector2 lastMovement;
+    private bool canMove;
     #endregion
 
     #region Wall Jump Variables
@@ -66,10 +67,13 @@ public class PlayerScript : MonoBehaviour
     [Header("Health")]
     [SerializeField] public int maxHealthPlayer;
     public int currentHealthPlayer;
-    private bool canHeal = true;
+    public bool canHeal = true;
     public HealthbarScript healthbarScript;
     private Vector2 startPos;
     Color c;
+    private bool canTakeDamage = true;
+    private float currentHealCooldownTime;
+    [SerializeField] private float maxHealCooldownTime;
     #endregion
 
     #region Attack Variables
@@ -82,10 +86,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] int heavyAttackDamage;
     [SerializeField] LayerMask enemyLayers;
     [SerializeField] private float chargeSpeed;
-    [SerializeField] private float minCooldownTime;
     [SerializeField] private float maxChargedAttackCooldownTime;
-    [SerializeField] private float maxHealCooldownTime;
-    private float currentHealCooldownTime;
     private float currentChargedAttackCooldownTime;
     private bool canChargeAttack = true;
     public Transform attackPoint;
@@ -98,7 +99,7 @@ public class PlayerScript : MonoBehaviour
     PlayerInput playerInput;
     #endregion
 
-    #region Script Variables
+    #region ComponentAndScript Variables
     public SpiraleBulletPattern spiraleBulletPattern;
     public CooldownScript cooldownScript;
     public Animator enemyAnimator;
@@ -120,8 +121,9 @@ public class PlayerScript : MonoBehaviour
         sr = gameObject.GetComponent<SpriteRenderer>();
         c = sr.material.color;
         startPos = transform.position;
+        cooldownScript.SetMaxHealCooldown(maxHealCooldownTime);
+        cooldownScript.SetMaxChargedAttackCooldown(maxChargedAttackCooldownTime);
         healthbarScript.SetMaxHealth(maxHealthPlayer);
-        cooldownScript.SetMinCooldown(minCooldownTime);
     }
 
     private void OnEnable()
@@ -145,13 +147,18 @@ public class PlayerScript : MonoBehaviour
 
         bool isRightButtonHeld = playerInput.player.chargedAttack.ReadValue<float>() > 0.1f;
 
-        if (isRightButtonHeld)
+        if (isRightButtonHeld && canChargeAttack)
         {
+            canMove = false;
             isCharging = true;
             if (isCharging == true)
             {
                 chargeTime += Time.deltaTime * chargeSpeed;
             }
+        }
+        else
+        {
+            canMove = true;
         }
 
         WallSlide();
@@ -165,11 +172,6 @@ public class PlayerScript : MonoBehaviour
             coyoteTimeCounter -= Time.deltaTime;
         }
 
-        if(!canHeal)
-        {
-            currentHealCooldownTime -= Time.deltaTime;
-            cooldownScript.SetCurrentHealCooldown(currentHealCooldownTime);
-        }
         if (currentHealCooldownTime <= 0)
         {
             canHeal = true;
@@ -275,6 +277,11 @@ public class PlayerScript : MonoBehaviour
                     if (enemyScript = collider.GetComponent<EnemyScript>())
                     {
                         enemyScript.TakeDamageEnemy(attackDamage, transform.gameObject);
+                        if (!canHeal)
+                        {
+                            currentHealCooldownTime -= 1;
+                            cooldownScript.SetCurrentHealCooldown(currentHealCooldownTime);
+                        }
                     }
                 }
                 nextAttackTime = Time.time + 1f / attackRate;
@@ -296,7 +303,7 @@ public class PlayerScript : MonoBehaviour
                     chargeTime = 0;
                     canChargeAttack = false;
                     currentChargedAttackCooldownTime = maxChargedAttackCooldownTime;
-                    cooldownScript.SetCurrentChargedAttackCooldown(maxHealCooldownTime);
+                    cooldownScript.SetCurrentChargedAttackCooldown(maxChargedAttackCooldownTime);
                 }
             }        
         }
@@ -322,11 +329,11 @@ public class PlayerScript : MonoBehaviour
 
     IEnumerator GetInvulnerable()
     {
-        Physics2D.IgnoreLayerCollision(3, 8, true);
+        canTakeDamage = false;
         c.a = 0.5f;
         sr.material.color = c;
-        yield return new WaitForSeconds(3f);
-        Physics2D.IgnoreLayerCollision(3, 8, false);
+        yield return new WaitForSeconds(2f);
+        canTakeDamage = true;
         c.a = 1f;
         sr.material.color = c;
     }
@@ -343,6 +350,7 @@ public class PlayerScript : MonoBehaviour
             transform.localScale = new Vector3(1f, 1f, 1f);
             rb.simulated = true;
             currentHealthPlayer = maxHealthPlayer;
+            healthbarScript.SetHealth(currentHealthPlayer);
         }
 
         if (!isFacingRight)
@@ -355,6 +363,7 @@ public class PlayerScript : MonoBehaviour
             transform.localScale = new Vector3(-1f, 1f, 1f);
             rb.simulated = true;
             currentHealthPlayer = maxHealthPlayer;
+            healthbarScript.SetHealth(currentHealthPlayer);
         }
     }
 
@@ -381,7 +390,6 @@ public class PlayerScript : MonoBehaviour
         if (col.CompareTag("Enemy") && currentHealthPlayer > 0)
         {
             TakeDamagePlayer(enemyColDamage);
-            StartCoroutine(GetInvulnerable());
         }
 
         if (currentHealthPlayer <= 0)
@@ -421,7 +429,11 @@ public class PlayerScript : MonoBehaviour
     #region Health Methods
     public void TakeDamagePlayer(int damage)
     {
-        currentHealthPlayer -= damage;
+        if(canTakeDamage)
+        {
+            currentHealthPlayer -= damage;
+            StartCoroutine(GetInvulnerable());
+        }
 
         healthbarScript.SetHealth(currentHealthPlayer);
 
@@ -440,37 +452,40 @@ public class PlayerScript : MonoBehaviour
     #region Movement Methods
     public void Move()
     {
-        float targetSpeed = moveInput == Vector2.zero ? 0 : speed * moveInput.magnitude;
-
-        Vector2 currentVelocity = lastMovement;
-
-        currentVelocity.y = 0;
-
-        float currentSpeed = currentVelocity.magnitude;
-
-        if (Mathf.Abs(currentSpeed - targetSpeed) > 0.01f)
+        if (canMove)
         {
-            currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, speedChangeRate * Time.deltaTime);
-        }
-        else
-        {
-            currentSpeed = targetSpeed;
-        }
+            float targetSpeed = moveInput == Vector2.zero ? 0 : speed * moveInput.magnitude;
 
-        if (!isFacingRight && moveInput.x > 0)
-        {
-            Flip();
+            Vector2 currentVelocity = lastMovement;
+
+            currentVelocity.y = 0;
+
+            float currentSpeed = currentVelocity.magnitude;
+
+            if (Mathf.Abs(currentSpeed - targetSpeed) > 0.01f)
+            {
+                currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, speedChangeRate * Time.deltaTime);
+            }
+            else
+            {
+                currentSpeed = targetSpeed;
+            }
+
+            if (!isFacingRight && moveInput.x > 0)
+            {
+                Flip();
+            }
+            else if (isFacingRight && moveInput.x < 0)
+            {
+                Flip();
+            }
+
+            Vector2 movement = moveInput * currentSpeed;
+
+            rb.velocity = new Vector2(movement.x, rb.velocity.y);
+
+            lastMovement = movement;
         }
-        else if (isFacingRight && moveInput.x < 0)
-        {
-            Flip();
-        }
-
-        Vector2 movement = moveInput * currentSpeed;
-
-        rb.velocity = new Vector2(movement.x, rb.velocity.y);
-
-        lastMovement = movement;
     }
 
     public void Flip()

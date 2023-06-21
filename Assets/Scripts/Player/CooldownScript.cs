@@ -5,29 +5,22 @@ using UnityEngine.UI;
 
 public class CooldownScript : MonoBehaviour
 {
+    /// <summary>
+    /// Slider für den Cooldown vom Heal und dem Charge Attack
+    /// </summary>
     public Slider chargedAttackCoolDownSlider;
     public Slider healCoolDownSlider;
-
-
-    public void SetMinCooldown(float minCoolDown)
-    {
-        chargedAttackCoolDownSlider.minValue = minCoolDown;
-        chargedAttackCoolDownSlider.value = minCoolDown;
-
-        healCoolDownSlider.minValue = minCoolDown;
-        healCoolDownSlider.value = minCoolDown;
-    }
 
     public void SetMaxChargedAttackCooldown(float maxCoolDown)
     {
         chargedAttackCoolDownSlider.maxValue = maxCoolDown;
-        chargedAttackCoolDownSlider.value = maxCoolDown;
+        chargedAttackCoolDownSlider.value = 0;
     }
 
     public void SetMaxHealCooldown(float maxCoolDown)
     {
         healCoolDownSlider.maxValue = maxCoolDown;
-        healCoolDownSlider.value = maxCoolDown;
+        healCoolDownSlider.value = 0;
     }
 
     public void SetCurrentChargedAttackCooldown(float currentCooldown)
