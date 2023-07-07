@@ -7,7 +7,19 @@ TagManager:
   - Enemy
   - Checkpoint
   - OneWayPlatform
-  - OneWayPlatformBossFight
+  - Stone
+  - SlimeRiver
+  - BossOneWayPlatform
+  - Audio
+  - Chapter2
+  - Chapter3
+  - BrokenFloor
+  - WASDSetBack
+  - ShiftSet
+  - ShiftSetBack
+  - SpacebarSet
+  - SpacebarSetBack
+  - ChargeAttackSet
   layers:
   - Default
   - TransparentFX
@@ -44,4 +56,34 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Back_Ground
+    uniqueID: 4104634463
+    locked: 0
+  - name: Middle_Ground
+    uniqueID: 996901351
+    locked: 0
+  - name: Fore_Ground
+    uniqueID: 4110209135
+    locked: 0
+  - name: Mountain
+    uniqueID: 2497880669
+    locked: 0
+  - name: Tiles
+    uniqueID: 2703594529
+    locked: 0
+  - name: Player
+    uniqueID: 2149973467
+    locked: 0
+  - name: CaveEntrance
+    uniqueID: 1636689831
+    locked: 0
+  - name: Shockwave
+    uniqueID: 307493667
+    locked: 0
+  - name: MovingPlatform
+    uniqueID: 2064789625
+    locked: 0
+  - name: Enemy
+    uniqueID: 3572793673
     locked: 0

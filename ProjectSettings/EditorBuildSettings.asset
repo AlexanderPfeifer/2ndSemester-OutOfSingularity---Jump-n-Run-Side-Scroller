@@ -6,18 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/MainMenuScene.unity
+    path: Assets/+++Workdata/Scenes/MainMenuScene.unity
     guid: 51f7d5edd27f7c045bce308d658bde59
   - enabled: 1
-    path: Assets/Scenes/OptionsMenuScene.unity
-    guid: 7270d3a67da6dd441bc2b8a08f28f3cc
-  - enabled: 1
-    path: Assets/Scenes/SpaceShipTutorial.unity
+    path: Assets/+++Workdata/Scenes/1.Chapter.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   - enabled: 1
-    path: Assets/Scenes/ThanksForPlayingScene.unity
-    guid: d9d203593d690c34688622e470d387b2
+    path: Assets/+++Workdata/Scenes/2.Chapter.unity
+    guid: 86b4b5371cb72a4449342984b892cf83
   - enabled: 1
-    path: Assets/Scenes/CreditScene.unity
-    guid: 9be8f847c2ee8c6459341c2ebe026dcf
+    path: Assets/+++Workdata/Scenes/3.Chapter.unity
+    guid: 337f5ac8e7b1f4a49a69fca10f9ed673
   m_configObjects: {}

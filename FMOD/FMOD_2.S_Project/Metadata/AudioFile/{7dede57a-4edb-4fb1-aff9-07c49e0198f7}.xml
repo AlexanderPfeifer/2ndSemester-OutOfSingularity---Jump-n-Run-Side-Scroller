@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{7dede57a-4edb-4fb1-aff9-07c49e0198f7}">
+		<property name="assetPath">
+			<value>SFX/AttackSlime/AttackSlimePIXABAY1.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>24</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.50470833333333331</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{3440b94c-5675-483d-b93c-e9346bd282c2}</destination>
+		</relationship>
+	</object>
+</objects>

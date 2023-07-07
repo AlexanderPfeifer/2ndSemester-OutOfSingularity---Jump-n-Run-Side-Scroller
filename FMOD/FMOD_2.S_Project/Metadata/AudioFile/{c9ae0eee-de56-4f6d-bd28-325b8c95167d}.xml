@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{c9ae0eee-de56-4f6d-bd28-325b8c95167d}">
+		<property name="assetPath">
+			<value>SFX/Footsteps/WalkingNeuPlayerPIXABAY6.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>24</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.086499999999999994</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{3440b94c-5675-483d-b93c-e9346bd282c2}</destination>
+		</relationship>
+	</object>
+</objects>
